@@ -9,10 +9,10 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 import "./BlzdToken.sol";
 
-// MasterChef is the master of Egg. He can make Egg and he is a fair guy.
+// MasterChef is the master of Blzd. He can make Blzd and he is a fair guy.
 //
 // Note that it's ownable and the owner wields tremendous power. The ownership
-// will be transferred to a governance smart contract once EGG is sufficiently
+// will be transferred to a governance smart contract once Blzd is sufficiently
 // distributed and the community can show to govern itself.
 //
 // Have fun reading it. Hopefully it's bug-free. God bless.
@@ -25,13 +25,13 @@ contract MasterChef is Ownable {
         uint256 amount;         // How many LP tokens the user has provided.
         uint256 rewardDebt;     // Reward debt. See explanation below.
         //
-        // We do some fancy math here. Basically, any point in time, the amount of EGGs
+        // We do some fancy math here. Basically, any point in time, the amount of Blzds
         // entitled to a user but is pending to be distributed is:
         //
-        //   pending reward = (user.amount * pool.accEggPerShare) - user.rewardDebt
+        //   pending reward = (user.amount * pool.accBlzdPerShare) - user.rewardDebt
         //
         // Whenever a user deposits or withdraws LP tokens to a pool. Here's what happens:
-        //   1. The pool's `accEggPerShare` (and `lastRewardBlock`) gets updated.
+        //   1. The pool's `accBlzdPerShare` (and `lastRewardBlock`) gets updated.
         //   2. User receives the pending reward sent to his/her address.
         //   3. User's `amount` gets updated.
         //   4. User's `rewardDebt` gets updated.
@@ -40,19 +40,19 @@ contract MasterChef is Ownable {
     // Info of each pool.
     struct PoolInfo {
         IBEP20 lpToken;           // Address of LP token contract.
-        uint256 allocPoint;       // How many allocation points assigned to this pool. EGGs to distribute per block.
-        uint256 lastRewardBlock;  // Last block number that EGGs distribution occurs.
-        uint256 accBlzdPerShare;   // Accumulated EGGs per share, times 1e12. See below.
+        uint256 allocPoint;       // How many allocation points assigned to this pool. Blzds to distribute per block.
+        uint256 lastRewardBlock;  // Last block number that Blzds distribution occurs.
+        uint256 accBlzdPerShare;   // Accumulated Blzds per share, times 1e12. See below.
         uint16 depositFeeBP;      // Deposit fee in basis points
     }
 
-    // The EGG TOKEN!
+    // The Blzd TOKEN!
     BlzdToken public blzd;
     // Dev address.
     address public devaddr;
-    // EGG tokens created per block.
+    // Blzd tokens created per block.
     uint256 public blzdPerBlock;
-    // Bonus muliplier for early egg makers.
+    // Bonus muliplier for early Blzd makers.
     uint256 public constant BONUS_MULTIPLIER = 1;
     // Deposit Fee address
     address public feeAddBb = 0x4b3aF8f787efa5B5B319bDC244da8368E2d3D454;
@@ -64,7 +64,7 @@ contract MasterChef is Ownable {
     mapping (uint256 => mapping (address => UserInfo)) public userInfo;
     // Total allocation points. Must be the sum of all allocation points in all pools.
     uint256 public totalAllocPoint = 0;
-    // The block number when EGG mining starts.
+    // The block number when Blzd mining starts.
     uint256 public startBlock;
 
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
@@ -105,7 +105,7 @@ contract MasterChef is Ownable {
         }));
     }
 
-    // Update the given pool's EGG allocation point and deposit fee. Can only be called by the owner.
+    // Update the given pool's Blzd allocation point and deposit fee. Can only be called by the owner.
     function set(uint256 _pid, uint256 _allocPoint, uint16 _depositFeeBP, bool _withUpdate) public onlyOwner {
         require(_depositFeeBP <= 400, "set: invalid deposit fee basis points");
         if (_withUpdate) {
@@ -121,7 +121,7 @@ contract MasterChef is Ownable {
         return _to.sub(_from).mul(BONUS_MULTIPLIER);
     }
 
-    // View function to see pending EGGs on frontend.
+    // View function to see pending Blzds on frontend.
     function pendingBlzd(uint256 _pid, address _user) external view returns (uint256) {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_user];
@@ -156,13 +156,13 @@ contract MasterChef is Ownable {
         }
         uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
         uint256 blzdReward = multiplier.mul(blzdPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
-        blzd.mint(devaddr, blzdReward.div(10));
+        blzd.mint(devaddr, blzdReward.mul(88).div(100));
         blzd.mint(address(this), blzdReward);
         pool.accBlzdPerShare = pool.accBlzdPerShare.add(blzdReward.mul(1e12).div(lpSupply));
         pool.lastRewardBlock = block.number;
     }
 
-    // Deposit LP tokens to MasterChef for EGG allocation.
+    // Deposit LP tokens to MasterChef for Blzd allocation.
     function deposit(uint256 _pid, uint256 _amount) public {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
@@ -218,7 +218,7 @@ contract MasterChef is Ownable {
         emit EmergencyWithdraw(msg.sender, _pid, amount);
     }
 
-    // Safe egg transfer function, just in case if rounding error causes pool to not have enough EGGs.
+    // Safe Blzd transfer function, just in case if rounding error causes pool to not have enough Blzds.
     function safeBlzdTransfer(address _to, uint256 _amount) internal {
         uint256 blzdBal = blzd.balanceOf(address(this));
         if (_amount > blzdBal) {
