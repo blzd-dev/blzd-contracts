@@ -243,10 +243,5 @@ contract MasterChef is Ownable {
         require(msg.sender == feeAddSt, "setFeeAddress: FORBIDDEN");
         feeAddSt = _feeAddress;
     }
-
-    //Pancake has to add hidden dummy pools inorder to alter the emission, here we make it simple and transparent to all.
-    function updateEmissionRate(uint256 _blzdPerBlock) public onlyOwner {
-        massUpdatePools();
-        blzdPerBlock = _blzdPerBlock;
-    }
+    
 }

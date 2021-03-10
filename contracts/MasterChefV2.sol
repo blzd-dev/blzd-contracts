@@ -254,17 +254,10 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
         emit SetFeeAddressBb(msg.sender, _feeAddress);
     }
 
-
     function setFeeAddressSt(address _feeAddress) public {
         require(msg.sender == feeAddSt, "setFeeAddress: FORBIDDEN");
         feeAddSt = _feeAddress;
         emit SetFeeAddressSt(msg.sender, _feeAddress);
     }
 
-    //Pancake has to add hidden dummy pools inorder to alter the emission, here we make it simple and transparent to all.
-    function updateEmissionRate(uint256 _blzdPerBlock) public onlyOwner {
-        massUpdatePools();
-        blzdPerBlock = _blzdPerBlock;
-        emit UpdateEmissionRate(msg.sender, _blzdPerBlock);
-    }
 }
