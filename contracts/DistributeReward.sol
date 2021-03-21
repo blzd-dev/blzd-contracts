@@ -18,10 +18,10 @@ contract DistributeReward {
 
     function distribute() external {
         uint256 balance = IBEP20(blzd).balanceOf(address(this));
-        uint256 marKetingReward = balance.mul(20).div(88);
-        uint256 ownerReward = balance.mul(18).div(88);
-        uint256 modsReward =  balance.mul(10).div(88);
-        uint256 devReward =  ((balance.sub(marKetingReward)).sub(ownerReward)).sub(modsReward);
+        uint256 devReward = balance.mul(400).div(888);
+        uint256 marKetingReward = balance.mul(200).div(888);
+        uint256 modsReward =  balance.mul(100).div(888);
+        uint256 ownerReward =  ((balance.sub(marKetingReward)).sub(devReward)).sub(modsReward);
         blzd.transfer(marketing, marKetingReward);
         blzd.transfer(owner, ownerReward);
         blzd.transfer(mods, modsReward);
