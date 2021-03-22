@@ -4,8 +4,9 @@ import "./libs/IBEP20.sol";
 import "./libs/SafeBEP20.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
- 
-contract SmartYeti is Ownable {
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+
+contract SmartYeti is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
     using SafeBEP20 for IBEP20;
 
@@ -124,7 +125,7 @@ contract SmartYeti is Ownable {
     }
 
     // Stake Blzd tokens to SmartYeti
-    function deposit(uint256 _amount) public {
+    function deposit(uint256 _amount) public nonReentrant {
         PoolInfo storage pool = poolInfo[0];
         UserInfo storage user = userInfo[msg.sender];
 
@@ -146,7 +147,7 @@ contract SmartYeti is Ownable {
     }
 
     // Withdraw BLZD tokens from STAKING.
-    function withdraw(uint256 _amount) public {
+    function withdraw(uint256 _amount) public nonReentrant {
         PoolInfo storage pool = poolInfo[0];
         UserInfo storage user = userInfo[msg.sender];
         require(user.amount >= _amount, "withdraw: not good");
@@ -165,12 +166,13 @@ contract SmartYeti is Ownable {
     }
 
     // Withdraw without caring about rewards. EMERGENCY ONLY.
-    function emergencyWithdraw() public {
+    function emergencyWithdraw() public nonReentrant{
         PoolInfo storage pool = poolInfo[0];
         UserInfo storage user = userInfo[msg.sender];
-        pool.lpToken.safeTransfer(address(msg.sender), user.amount);
+        uint256 amount = user.amount;
         user.amount = 0;
         user.rewardDebt = 0;
+        pool.lpToken.safeTransfer(address(msg.sender), amount);
         emit EmergencyWithdraw(msg.sender, user.amount);
     }
 

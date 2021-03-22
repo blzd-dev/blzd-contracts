@@ -4,12 +4,13 @@ import "./libs/IBEP20.sol";
 import "./libs/SafeBEP20.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
- 
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+
 interface IWBNB {
     function withdraw(uint256) external;
 }
 
-contract SmartYetiBnb is Ownable {
+contract SmartYetiBnb is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
     using SafeBEP20 for IBEP20;
 
@@ -29,7 +30,7 @@ contract SmartYetiBnb is Ownable {
 
     // The Blzd TOKEN!
     IBEP20 public blzd;
-    address public immutable WBNB;
+    address public constant WBNB = 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c;
 
     // Blzd tokens created per block.
     uint256 public rewardPerBlock;
@@ -51,13 +52,11 @@ contract SmartYetiBnb is Ownable {
 
     constructor(
         IBEP20 _blzd,
-        address _wbnb,
         uint256 _rewardPerBlock,
         uint256 _startBlock,
         uint256 _bonusEndBlock
     ) public {
         blzd = _blzd;
-        WBNB = _wbnb;
         rewardPerBlock = _rewardPerBlock;
         startBlock = _startBlock;
         bonusEndBlock = _bonusEndBlock;
@@ -128,7 +127,7 @@ contract SmartYetiBnb is Ownable {
     }
 
     // Stake Blzd tokens to SmartYeti
-    function deposit(uint256 _amount) public {
+    function deposit(uint256 _amount) public nonReentrant{
         PoolInfo storage pool = poolInfo[0];
         UserInfo storage user = userInfo[msg.sender];
 
@@ -151,7 +150,7 @@ contract SmartYetiBnb is Ownable {
     }
 
     // Withdraw BLZD tokens from STAKING.
-    function withdraw(uint256 _amount) public {
+    function withdraw(uint256 _amount) public nonReentrant{
         PoolInfo storage pool = poolInfo[0];
         UserInfo storage user = userInfo[msg.sender];
         require(user.amount >= _amount, "withdraw: not good");
@@ -171,12 +170,13 @@ contract SmartYetiBnb is Ownable {
     }
 
     // Withdraw without caring about rewards. EMERGENCY ONLY.
-    function emergencyWithdraw() public {
+    function emergencyWithdraw() public nonReentrant{
         PoolInfo storage pool = poolInfo[0];
         UserInfo storage user = userInfo[msg.sender];
-        pool.lpToken.safeTransfer(address(msg.sender), user.amount);
+        uint256 amount = user.amount;
         user.amount = 0;
         user.rewardDebt = 0;
+        pool.lpToken.safeTransfer(address(msg.sender), amount);
         emit EmergencyWithdraw(msg.sender, user.amount);
     }
 
@@ -192,7 +192,7 @@ contract SmartYetiBnb is Ownable {
     }
 
     function safeTransferBNB(address to, uint256 value) internal {
-        (bool success, ) = to.call{value: value}(new bytes(0));
+        (bool success, ) = to.call{gas: 23000,value: value}(new bytes(0));
         require(success, "!safeTransferBNB");
     }
 
