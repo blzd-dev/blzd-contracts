@@ -173,7 +173,7 @@ contract SmartYeti is Ownable, ReentrancyGuard {
         user.amount = 0;
         user.rewardDebt = 0;
         pool.lpToken.safeTransfer(address(msg.sender), amount);
-        emit EmergencyWithdraw(msg.sender, user.amount);
+        emit EmergencyWithdraw(msg.sender, amount);
     }
 
     // Withdraw reward. EMERGENCY ONLY.
