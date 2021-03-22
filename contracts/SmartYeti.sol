@@ -101,6 +101,7 @@ contract SmartYeti is Ownable, ReentrancyGuard {
 
     // Update reward variables of the given pool to be up-to-date.
     function updatePool(uint256 _pid) public {
+        require(_pid == 0, "pool! 0");
         PoolInfo storage pool = poolInfo[_pid];
         if (block.number <= pool.lastRewardBlock) {
             return;
