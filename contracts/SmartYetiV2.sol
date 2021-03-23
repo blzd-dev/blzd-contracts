@@ -81,7 +81,7 @@ contract SmartYetiV2 is Ownable, ReentrancyGuard {
 
     // View function to see pending Reward on frontend.
     function pendingReward(address _user) external view returns (uint256) {
-        UserInfo storage user = userInfo[_user];
+        UserInfo memory user = userInfo[_user];
         uint256 accBlzdPerShare = pool.accBlzdPerShare;
         uint256 lpSupply = pool.lpToken.balanceOf(address(this));
         if (block.number > pool.lastRewardBlock && lpSupply != 0) {
